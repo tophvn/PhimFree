@@ -111,5 +111,6 @@
         error_log("Thời gian xử lý tim-kiem.php: " . $execution_time . " giây");
         ?>
     </div>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

@@ -158,5 +158,6 @@
         error_log("Thời gian xử lý the-loai.php: " . $execution_time . " giây");
         ?>
     </div>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

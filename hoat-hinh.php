@@ -101,5 +101,6 @@
         $end_time = microtime(true);
         ?>
     </div>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

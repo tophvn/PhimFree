@@ -7,25 +7,29 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #141414;
-    color: #fff;
+    background-color: var(--body-bg, #141414); /* Mặc định tối */
+    color: var(--text-color, #fff);
+    transition: background-color 0.3s, color 0.3s; /* Hiệu ứng chuyển đổi */
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    background-color: var(--container-bg, transparent); /* Mặc định không nền */
+    transition: background-color 0.3s;
 }
 
 /* CSS cho Header */
 header {
-    background-color: #000;
+    background-color: var(--header-bg, #000);
     padding: 10px 0;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 1000;
+    transition: background-color 0.3s;
 }
 
 header .container {
@@ -45,7 +49,7 @@ header .container {
     display: none;
     background: none;
     border: none;
-    color: #fff;
+    color: var(--text-color, #fff);
     font-size: 24px;
     cursor: pointer;
 }
@@ -57,7 +61,7 @@ nav {
 }
 
 nav a {
-    color: #fff;
+    color: var(--text-color, #fff);
     text-decoration: none;
     padding: 10px 15px;
     transition: color 0.3s;
@@ -73,8 +77,8 @@ nav a:hover {
 }
 
 .dropdown-btn {
-    background-color: #000;
-    color: #fff;
+    background-color: var(--header-bg, #000);
+    color: var(--text-color, #fff);
     padding: 10px 20px;
     border: none;
     cursor: pointer;
@@ -88,13 +92,14 @@ nav a:hover {
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #2d2d2d;
+    background-color: var(--dropdown-bg, #2d2d2d);
     min-width: 200px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1001;
     left: 0;
     transform: translateX(-100%);
     top: 100%;
+    transition: background-color 0.3s;
 }
 
 .custom-dropdown:hover .dropdown-content {
@@ -108,7 +113,7 @@ nav a:hover {
 }
 
 .dropdown-content a {
-    color: #fff;
+    color: var(--text-color, #fff);
     padding: 12px 20px;
     text-decoration: none;
     display: block;
@@ -128,12 +133,13 @@ nav a:hover {
     border-right: none;
     border-radius: 4px 0 0 4px;
     outline: none;
-    background-color: #fff;
-    color: #000;
+    background-color: var(--input-bg, #fff);
+    color: var(--input-text, #000);
     width: 180px;
     font-size: 14px;
     height: 100%;
     box-sizing: border-box;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .search-form button {
@@ -164,10 +170,10 @@ nav a:hover {
 }
 
 .movie-item {
-    background-color: #222;
+    background-color: var(--item-bg, #222);
     border-radius: 8px;
     overflow: hidden;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
     position: relative;
 }
 
@@ -207,7 +213,8 @@ nav a:hover {
 .movie-info p {
     font-size: 14px;
     margin-bottom: 5px;
-    color: #ddd;
+    color: var(--sub-text, #ddd);
+    transition: color 0.3s;
 }
 
 .movie-item::before {
@@ -274,11 +281,12 @@ nav a:hover {
 
 /* CSS cho trang chi tiết phim */
 .movie-detail {
-    background-color: #222;
+    background-color: var(--item-bg, #222);
     padding: 20px;
     border-radius: 8px;
-    margin: 80px 0 20px; /* Đảm bảo không bị header che */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Bóng nhẹ */
+    margin: 80px 0 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .movie-header {
@@ -325,10 +333,11 @@ nav a:hover {
 }
 
 .meta-item {
-    background-color: #333;
+    background-color: var(--meta-bg, #333);
     padding: 5px 10px;
     border-radius: 4px;
     font-size: 0.9em;
+    transition: background-color 0.3s;
 }
 
 .meta-item strong {
@@ -384,7 +393,7 @@ nav a:hover {
 }
 
 .loading-message.active {
-    display: block; /* Đảm bảo câu thông báo hiển thị */
+    display: block;
 }
 
 .video-player {
@@ -436,9 +445,41 @@ nav a:hover {
     background-color: #f40612;
 }
 
+/* Nút chuyển đổi sáng/tối */
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color, #fff);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 10px;
+    transition: transform 0.3s;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Giao diện sáng */
+body.light-mode {
+    --body-bg: #f0f0f0;
+    --text-color: #333;
+    --container-bg: #fff;
+    --header-bg: #fff;
+    --dropdown-bg: #e0e0e0;
+    --item-bg: #fff;
+    --meta-bg: #ddd;
+    --input-bg: #fff;
+    --input-text: #000;
+    --sub-text: #666;
+}
+
+body.light-mode header {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Thêm bóng nhẹ cho header */
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
-    /* Header Responsive */
     .hamburger {
         display: block;
     }
@@ -453,7 +494,7 @@ nav a:hover {
         display: none;
         flex-direction: column;
         width: 100%;
-        background-color: #000;
+        background-color: var(--header-bg, #000);
         position: fixed;
         top: 60px;
         left: 0;
@@ -494,7 +535,6 @@ nav a:hover {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    /* Movie Detail Responsive */
     .movie-detail {
         padding: 15px;
         margin: 70px 10px 20px;
@@ -600,3 +640,5 @@ nav a:hover {
         text-align: center;
     }
 }
+
+

@@ -1,6 +1,9 @@
 # Bật Rewrite Engine
 RewriteEngine On
 
+# Điều hướng lỗi 404 đến trang tùy chỉnh (ưu tiên đặt lên đầu)
+ErrorDocument 404 /404.php
+
 # Ẩn đuôi .php cho tất cả các file
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
@@ -29,6 +32,3 @@ RewriteRule ^the-loai/(.+)$ the-loai.php?slug=$1 [L,QSA]
 RewriteRule ^phim$ phim.php [L]
 RewriteRule ^phim/$ phim.php [L]
 RewriteRule ^phim/(.+)$ phim.php?slug=$1 [L,QSA]
-
-# Điều hướng lỗi 404 đến trang tùy chỉnh
-ErrorDocument 404 /404.php

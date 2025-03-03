@@ -9,14 +9,165 @@
         /* Sửa lỗi video không hiện trên mobile */
         @media (max-width: 768px) {
             .video-player.active {
-                display: block !important; /* Đảm bảo video hiển thị khi active */
-                height: 300px; /* Giữ chiều cao như trong CSS */
+                display: block !important;
+                height: 300px;
             }
         }
         @media (max-width: 480px) {
             .video-player.active {
-                display: block !important; /* Đảm bảo video hiển thị khi active */
-                height: 200px; /* Giữ chiều cao như trong CSS */
+                display: block !important;
+                height: 200px;
+            }
+        }
+
+        /* Sửa danh sách tập phim thẳng hàng và đều nhau */
+        .episode-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+
+        .episode-btn {
+            width: 80px;
+            text-align: center;
+            padding: 10px 0;
+            box-sizing: border-box;
+        }
+
+        /* Nút Xem từ đầu */
+        .play-from-start {
+            background-color: #e50914;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .play-from-start:hover {
+            background-color: #f40612;
+        }
+
+        /* Container cho danh sách tập với thanh cuộn dọc */
+        .episode-scroll-container {
+            max-height: 200px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #1a1a1a;
+        }
+
+        /* Responsive cho danh sách tập trên điện thoại */
+        @media (max-width: 768px) {
+            .episode-list {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 10px;
+                justify-content: flex-start;
+            }
+
+            .episode-btn {
+                width: 100%; 
+                max-width: 120px; 
+            }
+
+            .episode-scroll-container {
+                max-height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .episode-list {
+                grid-template-columns: repeat(2, 1fr); 
+            }
+
+            .episode-scroll-container {
+                max-height: 250px; 
+            }
+        }
+
+        /* Phần phim đề xuất */
+        .suggested-movies {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #222;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .suggested-title {
+            font-size: 22px;
+            color: #e50914;
+            margin-bottom: 15px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .suggested-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .suggested-item {
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .suggested-item:hover {
+            transform: scale(1.05);
+        }
+
+        .suggested-item img {
+            width: 100%;
+            height: 225px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .suggested-item h4 {
+            font-size: 16px;
+            margin: 5px 0;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .suggested-item a {
+            color: #e50914;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .suggested-item a:hover {
+            color: #f40612;
+        }
+
+        /* Responsive cho phim đề xuất */
+        @media (max-width: 768px) {
+            .suggested-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+
+            .suggested-item img {
+                height: 180px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .suggested-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+
+            .suggested-item img {
+                height: 150px;
             }
         }
     </style>
@@ -55,9 +206,27 @@
                     $ep_name = htmlspecialchars($episode['name']);
                     $ep_link_embed = $episode['link_embed'] ?? '#';
                     $ep_link_m3u8 = $episode['link_m3u8'] ?? '#';
-                    $episodes[$ep_name] = ['embed' => $ep_link_embed, 'm3u8' => $ep_link_m3u8];
+                    $ep_number = preg_replace('/[^0-9]/', '', $ep_name); // Lấy số từ tên tập
+                    $episodes[$ep_number] = ['name' => $ep_name, 'embed' => $ep_link_embed, 'm3u8' => $ep_link_m3u8];
                 }
-                krsort($episodes);
+                krsort($episodes); // Sắp xếp giảm dần theo số tập (tập lớn nhất lên đầu)
+            }
+
+            $first_episode_link = !empty($episodes) ? end($episodes)['embed'] : '#'; // Lấy tập 1
+
+            // Lấy phim đề xuất ngẫu nhiên
+            $suggested_movies = [];
+            $suggested_api_url = "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v2?page=1";
+            $suggested_data = fetch_api($suggested_api_url);
+            if ($suggested_data && isset($suggested_data['items'])) {
+                $all_suggested = $suggested_data['items'];
+                shuffle($all_suggested); // Xáo trộn ngẫu nhiên
+                foreach ($all_suggested as $suggested_movie) {
+                    if ($suggested_movie['slug'] !== $slug) { // Loại bỏ phim hiện tại
+                        $suggested_movies[] = $suggested_movie;
+                        if (count($suggested_movies) >= 6) break; // Lấy tối đa 6 phim
+                    }
+                }
             }
 
             echo "
@@ -82,8 +251,8 @@
                         </div>
                     </div>
                     <div class='movie-player-section'>
-                        <h3>Xem Phim</h3>
-                        <p class='server-info'><strong>Server:</strong> Vietsub #1</p>
+                        <h3>Xem Phim: <button class='play-from-start' onclick=\"playEpisode('$first_episode_link')\">Xem từ đầu</button></h3>
+                        <p class='server-info' id='serverInfo'><strong>Server:</strong> Vietsub #1</p>
                         <div class='player-container'>
                             <div class='loading-message' id='loadingMessage'>Phim đang được tải, vui lòng chờ trong <span id='countdown'>5</span> giây...</div>
                             <div class='video-player' id='videoPlayer'>
@@ -91,11 +260,31 @@
                                 <div class='error-message' id='errorMessage'>Không thể phát video. Vui lòng kiểm tra lại hoặc liên hệ admin.</div>
                             </div>
                         </div>
-                        <div class='episode-list'>";
-            foreach ($episodes as $ep_name => $links) {
-                echo "<a href='#' class='episode-btn' onclick=\"playEpisode('{$links['embed']}'); return false;\">{$ep_name}</a>";
+                        <div class='episode-scroll-container'>
+                            <div class='episode-list'>";
+            foreach ($episodes as $ep_number => $data) {
+                echo "<a href='#' class='episode-btn' onclick=\"playEpisode('{$data['embed']}'); return false;\">{$data['name']}</a>";
             }
-            echo "      </div>
+            echo "          </div>
+                        </div>
+                    </div>
+                    <!-- Phim đề xuất -->
+                    <div class='suggested-movies'>
+                        <h2 class='suggested-title'>PHIM ĐỀ XUẤT</h2>
+                        <div class='suggested-grid'>";
+            foreach ($suggested_movies as $suggested_movie) {
+                $suggested_title = htmlspecialchars($suggested_movie['name']);
+                $suggested_slug = $suggested_movie['slug'];
+                $suggested_thumbnail = fix_image_url($suggested_movie['thumb_url']);
+                echo "
+                    <div class='suggested-item'>
+                        <a href='phim.php?slug={$suggested_slug}'>
+                            <img src='{$suggested_thumbnail}' alt='{$suggested_title}' onerror=\"this.onerror=null; this.src='https://via.placeholder.com/150x225?text=Error'; console.log('Lỗi tải ảnh đề xuất: {$suggested_thumbnail}');\">
+                            <h4>{$suggested_title}</h4>
+                        </a>
+                    </div>";
+            }
+            echo "        </div>
                     </div>
                 </div>";
         } else {
@@ -106,6 +295,8 @@
         }
         ?>
     </div>
+
+    <?php include 'footer.php'; ?>
 
     <script>
         let countdown;
@@ -124,6 +315,9 @@
             let timeLeft = 5;
             countdownSpan.textContent = timeLeft;
 
+            // Bỏ tự động cuộn
+            // Không có dòng scrollIntoView
+
             clearInterval(countdown);
             countdown = setInterval(() => {
                 timeLeft--;
@@ -132,8 +326,6 @@
                     clearInterval(countdown);
                     loadingMessage.classList.remove('active');
                     videoPlayer.classList.add('active');
-                    // Cuộn đến video player sau khi hiển thị
-                    videoPlayer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             }, 1000);
 

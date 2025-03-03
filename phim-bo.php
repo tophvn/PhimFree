@@ -9,7 +9,7 @@
 <body>
     <?php include 'header.php'; ?>
 
-    <div class="container">
+    <div class="container"><br><br><br><br><br>
         <h2>PHIM BỘ MỚI CẬP NHẬT</h2><br>
 
         <?php
@@ -97,5 +97,6 @@
         error_log("Thời gian xử lý phim-bo.php: " . ($end_time - $start_time) . " giây");
         ?>
     </div>
+    <?php include 'footer.php'; ?>
 </body>
 </html>

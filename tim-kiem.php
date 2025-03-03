@@ -9,16 +9,10 @@
 <body>
     <?php include 'header.php'; ?>
 
-    <div class="banner">
-        <div class="banner-content">
-            <h1>Tìm kiếm: <?php echo htmlspecialchars($_GET['keyword'] ?? 'Không xác định'); ?></h1>
-            <p>Kết quả tìm kiếm phim theo từ khóa của bạn!</p>
-            <button class="btn">Xem ngay</button>
-        </div>
-    </div>
+    
 
-    <div class="container">
-        <h1>Kết quả tìm kiếm cho "<?php echo htmlspecialchars($_GET['keyword'] ?? ''); ?>"</h1>
+    <div class="container"><br><br><br><br><br>
+        <h2>Kết quả tìm kiếm cho "<?php echo htmlspecialchars($_GET['keyword'] ?? ''); ?>"</h2><br>
 
         <?php
         // Đo thời gian xử lý
@@ -61,30 +55,32 @@
             if (empty($all_movies)) {
                 echo '<p>Không tìm thấy phim nào phù hợp với từ khóa "' . htmlspecialchars($keyword) . '".</p>';
             } else {
-                echo '<div class="movie-container">';
+                echo '<div class="movie-grid">';
                 foreach ($all_movies as $movie) {
                     $title = htmlspecialchars($movie['name']);
                     $slug = $movie['slug'];
-                    // Ghép domain CDN với thumb_url
                     $thumbnail_raw = $movie['thumb_url'] ?? '';
                     $thumbnail = !empty($thumbnail_raw) ? $cdn_image_domain . '/' . ltrim($thumbnail_raw, '/') : 'https://via.placeholder.com/200x300?text=No+Image';
                     $year = $movie['year'] ?? 'N/A';
-                    
-                    // Debug URL ảnh
+                    $episode = isset($movie['episode_current']) ? $movie['episode_current'] : 'N/A'; // Thêm trường episode nếu có
+                    $type = $movie['type'] ?? 'N/A'; // Loại phim
+                    $modified_time = isset($movie['modified']['time']) ? date('Y-m-d', strtotime($movie['modified']['time'])) : 'N/A';
+
                     error_log("Thumbnail URL (tim-kiem.php): " . $thumbnail);
 
                     $fallback_thumbnail = 'https://via.placeholder.com/200x300?text=Error';
                     echo "
-                        <div class='movie-card'>
-                            <a href='phim.php?slug={$slug}'>
-                                <img src='{$thumbnail}' alt='{$title}' onerror=\"this.onerror=null; this.src='{$fallback_thumbnail}'; console.log('Lỗi tải ảnh (tim-kiem.php): {$thumbnail}');\">
-                                <div class='info'>
-                                    <h3>{$title}</h3>
-                                    <p>Năm: {$year}</p>
-                                </div>
-                            </a>
+                <div class='movie-item'>
+                    <a href='phim.php?slug={$slug}' class='movie-link'>
+                        <img src='{$thumbnail}' alt='{$title}' onerror=\"this.onerror=null; this.src='{$fallback_thumbnail}'; console.log('Lỗi tải ảnh (phim-bo.php): {$thumbnail}');\">
+                        <span class='episode-label'>{$episode}</span>
+                        <div class='movie-info'>
+                            <h3>{$title}</h3>
+                            <p>Cập nhật: {$modified_time}</p>
                         </div>
-                    ";
+                    </a>
+                </div>
+            ";
                 }
                 echo '</div>';
 
@@ -93,11 +89,11 @@
                 $total_pages = $data['data']['pagination']['totalPages'] ?? ceil($total_items / $films_per_page);
                 echo '<div class="pagination">';
                 if ($page > 1) {
-                    echo "<a href='tim-kiem.php?keyword=" . urlencode($keyword) . "&page=" . ($page - 1) . "'>Trang trước</a>";
+                    echo "<a href='tim-kiem.php?keyword=" . urlencode($keyword) . "&page=" . ($page - 1) . "' class='page-link'>Trang trước</a>";
                 }
                 echo " <span>Trang $page / $total_pages</span> ";
                 if ($page < $total_pages) {
-                    echo "<a href='tim-kiem.php?keyword=" . urlencode($keyword) . "&page=" . ($page + 1) . "'>Trang sau</a>";
+                    echo "<a href='tim-kiem.php?keyword=" . urlencode($keyword) . "&page=" . ($page + 1) . "' class='page-link'>Trang sau</a>";
                 }
                 echo '</div>';
             }

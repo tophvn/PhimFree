@@ -3,77 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phimfree - Danh sách Hoạt Hình</title>
+    <title>Phimfree - Danh sách Phim Hoạt Hình</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <?php include 'header.php'; ?>
 
-    <div class="container">
-        <h1>Danh sách Hoạt Hình</h1>
+    <!-- <div class="banner">
+        <div class="banner-content">
+            <h1>Phim Hoạt Hình Nổi Bật</h1>
+            <p>Khám phá những bộ phim hoạt hình hấp dẫn nhất!</p>
+            <a href="#" class="btn">Xem ngay</a>
+        </div>
+    </div> -->
+
+    <div class="container"><br><br><br><br><br>
+        <h2>PHIM HOẠT HÌNH MỚI CẬP NHẬT</h2><br>
 
         <?php
         $start_time = microtime(true);
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
         $limit = 30; // Hiển thị 30 phim mỗi trang
+
+        // Lấy tham số lọc từ form (nếu có)
+        $sort_field = isset($_GET['sort_field']) && !empty($_GET['sort_field']) ? $_GET['sort_field'] : '';
+        $sort_type = 'desc'; // Mặc định giảm dần
+
+        // Xây dựng URL API cho phim hoạt hình
         $api_url = "https://phimapi.com/v1/api/danh-sach/hoat-hinh?page={$page}&limit={$limit}";
-        
-        error_log("API URL (hoat-hinh.php): " . $api_url);
+        if ($sort_field) $api_url .= "&sort_field={$sort_field}&sort_type={$sort_type}";
+
+        // Gọi API
         $data = fetch_api($api_url);
 
-        if ($data && isset($data['data']['items']) && !empty($data['data']['items'])) {
+        // Kiểm tra dữ liệu trả về từ API
+        if ($data && isset($data['status']) && $data['status'] === 'success' && isset($data['data']['items']) && !empty($data['data']['items'])) {
             $movies = $data['data']['items'];
 
-            echo '<div class="movie-container">';
+            echo '<div class="movie-grid">';
             foreach ($movies as $movie) {
                 $title = htmlspecialchars($movie['name'] ?? 'Không có tiêu đề');
                 $slug = htmlspecialchars($movie['slug'] ?? '');
                 $thumbnail = !empty($movie['thumb_url']) ? 'https://phimimg.com/' . ltrim($movie['thumb_url'], '/') : 'https://via.placeholder.com/200x300?text=No+Image';
                 $year = htmlspecialchars($movie['year'] ?? 'N/A');
+                $episode = isset($movie['episode_current']) ? $movie['episode_current'] : 'N/A'; // Thêm trường episode nếu có
+                // Kiểm tra và thay 'hoathinh' thành 'Hoạt Hình'
+                $type = $movie['type'] ?? 'Hoạt Hình';
+                if ($type === 'hoathinh') {
+                    $type = 'Hoạt Hình';
+                }
+                $modified_time = isset($movie['modified']['time']) ? date('Y-m-d', strtotime($movie['modified']['time'])) : 'N/A';
 
                 $fallback_thumbnail = 'https://via.placeholder.com/200x300?text=Error';
                 echo "
-                    <div class='movie-card'>
-                        <a href='phim.php?slug={$slug}'>
-                            <img src='{$thumbnail}' alt='{$title}' onerror=\"this.src='{$fallback_thumbnail}'; console.log('Lỗi tải ảnh (hoat-hinh.php): {$thumbnail}');\">
-                            <div class='info'>
-                                <h3>{$title}</h3>
-                                <p>Năm: {$year}</p>
-                            </div>
-                        </a>
-                    </div>
-                ";
+                <div class='movie-item'>
+                    <a href='phim.php?slug={$slug}' class='movie-link'>
+                        <img src='{$thumbnail}' alt='{$title}' onerror=\"this.onerror=null; this.src='{$fallback_thumbnail}'; console.log('Lỗi tải ảnh (phim-bo.php): {$thumbnail}');\">
+                        <span class='episode-label'>{$episode}</span>
+                        <div class='movie-info'>
+                            <h3>{$title}</h3>
+                            <p>Cập nhật: {$modified_time}</p>
+                        </div>
+                    </a>
+                </div>
+            ";
             }
             echo '</div>';
 
-            $total_items = isset($data['data']['pagination']['totalItems']) ? (int)$data['data']['pagination']['totalItems'] : count($movies);
-            $total_pages = isset($data['data']['pagination']['totalPages']) ? (int)$data['data']['pagination']['totalPages'] : ceil($total_items / $limit);
+            // Xử lý phân trang
+            $total_items = isset($data['data']['params']['pagination']['totalItems']) ? (int)$data['data']['params']['pagination']['totalItems'] : count($movies);
+            $total_pages = isset($data['data']['params']['pagination']['totalItemsPerPage']) 
+                ? ceil($total_items / $data['data']['params']['pagination']['totalItemsPerPage']) 
+                : ceil($total_items / $limit);
 
             echo "<p>Tổng phim: $total_items | Trang hiện tại: $page | Tổng trang: $total_pages</p>";
-            error_log("Phân trang (hoat-hinh.php): totalItems=$total_items, totalPages=$total_pages, currentPage=$page, itemsCount=" . count($movies));
 
+            // Hiển thị liên kết phân trang
             if ($total_pages > 1) {
                 echo '<div class="pagination">';
                 if ($page > 1) {
-                    echo "<a href='hoat-hinh.php?page=" . ($page - 1) . "'>Trang trước</a>";
+                    echo "<a href='hoat-hinh.php?page=" . ($page - 1) . "&sort_field={$sort_field}' class='page-link'>Trang trước</a>";
                 } else {
                     echo "<span class='disabled'>Trang trước</span>";
                 }
                 echo " <span>Trang $page / $total_pages</span> ";
                 if ($page < $total_pages) {
-                    echo "<a href='hoat-hinh.php?page=" . ($page + 1) . "'>Trang sau</a>";
+                    echo "<a href='hoat-hinh.php?page=" . ($page + 1) . "&sort_field={$sort_field}' class='page-link'>Trang sau</a>";
                 } else {
                     echo "<span class='disabled'>Trang sau</span>";
                 }
                 echo '</div>';
             }
         } else {
-            echo '<p>Không thể tải danh sách hoạt hình. Vui lòng kiểm tra kết nối hoặc liên hệ admin.</p>';
-            error_log("Lỗi API tại hoat-hinh.php: " . json_encode($data));
+            echo '<p>Không thể tải danh sách phim hoạt hình. Vui lòng kiểm tra kết nối hoặc liên hệ admin.</p>';
         }
 
         $end_time = microtime(true);
-        error_log("Thời gian xử lý hoat-hinh.php: " . ($end_time - $start_time) . " giây");
         ?>
     </div>
 </body>

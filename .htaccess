@@ -1,0 +1,34 @@
+# Bật Rewrite Engine
+RewriteEngine On
+
+# Ẩn đuôi .php cho tất cả các file
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)\.php$ /$1 [L,R=301]
+
+# Điều hướng các yêu cầu không có .php sang file .php tương ứng
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)$ $1.php [L]
+
+# Quy tắc cho từng trang
+RewriteRule ^index$ index.php [L]
+RewriteRule ^index/$ index.php [L]
+RewriteRule ^phim-bo$ phim-bo.php [L]
+RewriteRule ^phim-bo/$ phim-bo.php [L]
+RewriteRule ^phim-le$ phim-le.php [L]
+RewriteRule ^phim-le/$ phim-le.php [L]
+RewriteRule ^tv-shows$ tv-shows.php [L]
+RewriteRule ^tv-shows/$ tv-shows.php [L]
+RewriteRule ^hoat-hinh$ hoat-hinh.php [L]
+RewriteRule ^hoat-hinh/$ hoat-hinh.php [L]
+RewriteRule ^tim-kiem$ tim-kiem.php [L]
+RewriteRule ^tim-kiem/$ tim-kiem.php [L]
+RewriteRule ^the-loai$ the-loai.php [L]
+RewriteRule ^the-loai/$ the-loai.php [L]
+RewriteRule ^the-loai/(.+)$ the-loai.php?slug=$1 [L,QSA]
+RewriteRule ^phim$ phim.php [L]
+RewriteRule ^phim/$ phim.php [L]
+RewriteRule ^phim/(.+)$ phim.php?slug=$1 [L,QSA]
+
+# Điều hướng lỗi 404 đến trang tùy chỉnh
+ErrorDocument 404 /404.php

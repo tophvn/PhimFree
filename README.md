@@ -1,6 +1,6 @@
 # 🎬 Website Xem Phim - API KKPhim
 
-![Screenshot](https://i.ibb.co/9Hmy9RBM/screencapture-phimfree-free-nf-index-2025-03-05-11-45-24.png)  
+![Screenshot](giaodien.png)
 
 Website xem phim trực tuyến miễn phí sử dụng API KKPhim để cập nhật phim mới nhất.  
 
